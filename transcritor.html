@@ -7,6 +7,8 @@
     <title>Transcritor Alura</title>
 
     <link rel="stylesheet" href="lib/simplemde.min.css">
+    <link rel="stylesheet" href="lib/darkroom.css">
+
     <script src="lib/simplemde.min.js"></script>
     <script src="lib/slug.js"></script>
     <script src="lib/capture-video-frame.js"></script>
@@ -56,6 +58,28 @@
         max-height: 40vh;
     }
 
+    #image-editor {
+        position: absolute;
+        z-index: 10000;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        padding: 50px;
+        background:#f0f0f0;
+
+        display: none;
+    }
+
+        #image-editor img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        #image-editor.show {
+            display: block;
+        }
+
     </style>
 
 </head>
@@ -63,6 +87,7 @@
     
     <div id="video"></div>
     <div id="editor"><textarea></textarea></div>
+    <div id="image-editor"></div>
 
     <script>
     // pega parametros na URL
@@ -170,15 +195,10 @@
             `)
         });
 
-        // append no editor
-        function insertText(text) {
-            editor.codemirror.replaceSelection(text);
-        }
-
         function screenshot() {
             video.pause();
             
-            var alt = prompt('Tirando screenshot. Qual o alt da imagem?');
+            alt = prompt('Tirando screenshot. Qual o alt da imagem?');
             var slug = window.slug(alt, {lower: true}).split('-').splice(0, 3).join('-'); // 3 palavras
 
             // conta o numero de screenshots nessa task
@@ -187,18 +207,31 @@
             localStorage.setItem(key, contador);
 
             // padrao: 1.2_001_at.jpg
-            var filename = `${CONFIG.aula}.${CONFIG.posicao}_${("" + (contador + 1000)).substr(1)}_${slug}.jpg`;
+            // FEIO: global pra chamar no editor
+            filename = `${CONFIG.aula}.${CONFIG.posicao}_${("" + (contador + 1000)).substr(1)}_${slug}.jpg`;
 
             // salva o screenshot
             var frame = captureVideoFrame(video, 'jpeg');
-            var a = document.createElement('a');
-            a.setAttribute('href', frame.dataUri);
-            a.setAttribute('download', filename);
-            a.click();
+            
+            // dispara editor de crop
+            var imgeditor = document.querySelector('#image-editor');
+            imgeditor.innerHTML = '';
+            var img = new Image();
+            img.src = frame.dataUri;
+            img.id = 'darkroom';
+            imgeditor.appendChild(img);
+            imgeditor.classList.add('show');
 
-            // insere no markdown
-            // padrao: https://s3.amazonaws.com/caelum-online-public/234-illustrator-finalizacao-e-apresentacao-de-personagem/1.2_01_movendo-o-elemento.png
-            insertText(`\n![${alt}](${CONFIG.uploadURL}/${CONFIG.courseId}-${CONFIG.course}/${filename})\n`);
+            new Darkroom('#darkroom', {
+                plugins: {
+                    save: false,
+                    rotate: false
+                  },
+                  initialize: function() {
+                    var cropPlugin = this.plugins['crop'];
+                    cropPlugin.requireFocus();
+                }
+            });
         };
 
         function changePlaybackRate(valor){
@@ -225,6 +258,70 @@
         var statuscurtime = document.querySelector('.status-curtime');
         video.ontimeupdate = () => statuscurtime.textContent = secToVideoTimestamp(video.currentTime, false);
     })();
+
+    // append no editor
+    function insertText(text) {
+        editor.codemirror.replaceSelection(text);
+    }
+    </script>
+
+    <script src="lib/fabric.js"></script>
+    <script src="lib/darkroom.js"></script>
+
+    <script>
+        Darkroom.plugins['finish'] = Darkroom.Plugin.extend({
+
+        defaults: {
+            callback: function() {
+                // pega data url
+                var data = document.querySelector('.lower-canvas').toDataURL('jpeg');
+
+                // limpa editor
+                this.darkroom.selfDestroy();
+                document.querySelector('#image-editor').classList.remove('show');
+
+                // download
+                var a = document.createElement('a');
+                a.setAttribute('href', data);
+                a.setAttribute('download', filename);
+                a.click();
+
+                // insere no markdown
+                // padrao: https://s3.amazonaws.com/caelum-online-public/234-illustrator-finalizacao-e-apresentacao-de-personagem/1.2_01_movendo-o-elemento.png
+                insertText(`\n![${alt}](${CONFIG.uploadURL}/${CONFIG.courseId}-${CONFIG.course}/${filename})\n`);
+            }
+        },
+
+        initialize: function InitializeDarkroomSavePlugin() {
+            var buttonGroup = this.darkroom.toolbar.createButtonGroup();
+
+            this.destroyButton = buttonGroup.createButton({
+                image: 'save'
+            });
+
+            this.destroyButton.addEventListener('click', this.options.callback.bind(this));
+            },
+        });
+
+
+        function getBase64Image(img) {
+            // Create an empty canvas element
+            var canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Copy the image contents to the canvas
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            // Get the data-URL formatted image
+            // Firefox supports PNG and JPEG. You could check img.src to
+            // guess the original format, but be aware the using "image/jpg"
+            // will re-encode the image.
+            var dataURL = canvas.toDataURL("image/jpg");
+
+            return dataURL.replace(/^data:image\/jpg;base64,/, "");
+        }
     </script>
 
 </body>
