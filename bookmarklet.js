@@ -1,0 +1,1 @@
+javascript:window.open('http://localhost:2000/transcritor.html?video=' + encodeURIComponent(document.querySelector('video').src) + '&admin=' + encodeURIComponent(document.querySelector('.settings-box-item-edit a').href) + '&task=' + encodeURIComponent(location.href), 'transcritor');

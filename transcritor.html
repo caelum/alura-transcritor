@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Transcritor Alura</title>
+
+    <link rel="stylesheet" href="node_modules/simplemde/dist/simplemde.min.css">
+    <script src="node_modules/simplemde/dist/simplemde.min.js"></script>
+    <script src="node_modules/capture-video-frame/capture-video-frame.js"></script>
+
+    <style>
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        font-family: Arial;
+        display: flex;
+    }
+    #video {
+        background: #222;
+    }
+    video {
+        width: 100%;
+    }
+    #editor {
+        display: flex;
+        flex-direction: column;
+    }
+    .editor-toolbar {
+        border: 0;
+        border-radius: 0;
+        background: #f0f0f0;
+    }
+    .CodeMirror {
+        height: 100%;
+        border-radius: 0;
+        border: 0;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+
+    [data-layout="dividido"] {
+        flex-direction: row;
+    }
+    [data-layout="dividido"] > * {
+        width: 50%;
+    }
+
+    [data-layout="empilhado"] {
+        flex-direction: column;
+    }
+    [data-layout="empilhado"] video {
+        max-height: 40vh;
+    }
+
+    </style>
+
+</head>
+<body data-layout="dividido">
+    
+    <div id="video"></div>
+    <div id="editor"><textarea></textarea></div>
+
+    <script>
+    // pega parametros na URL
+    var CONFIG = {};
+    (function(){
+        var url = new URL(window.location.href);
+        CONFIG.videoUrl = url.searchParams.get('video');
+        CONFIG.admin = url.searchParams.get('admin');
+        CONFIG.task = url.searchParams.get('task');
+        CONFIG.course = CONFIG.task.match('/course\/([^\/]+)/')[1];
+        CONFIG.taskId = CONFIG.task.substring(CONFIG.task.lastIndexOf('/')+1)
+        CONFIG.uploadURL = 'https://s3.amazonaws.com/caelum-online-public';
+    })();
+
+    // constroi o video player
+    document.querySelector('#video').innerHTML = `<video src="${CONFIG.videoUrl}" controls crossorigin="anonymous"></video>`;
+    </script>
+
+    <script>
+    (function(){
+        var video = document.querySelector('video');
+
+        // editor
+        editor = new SimpleMDE({
+            autofocus: true,
+            autosave: {
+                enabled: true,
+                delay: 5000,
+                uniqueId: CONFIG.taskId
+            },
+            spellChecker: false,
+            showIcons: ['code'],
+            shortcuts: {
+                'toggleSideBySide': 'F11',
+                'toggleFullScreen': null
+            },
+            status: [
+                {
+                    defaultValue: function(el) {
+                        el.innerHTML = `<a href="${CONFIG.admin}" target="_blank">Admin</a>`;
+                    }
+                },
+                {
+                    className: "ajuda",
+                    defaultValue: function(el) {
+                        el.innerHTML = "Ajuda? F12";
+                    }
+                },
+                {
+                    className: "status-pbrate",
+                    defaultValue: function(el) {
+                        el.innerHTML = "1x";
+                    }
+                },
+                {
+                    className: "status-curtime",
+                    defaultValue: function(el) {
+                        el.innerHTML = "0:00";
+                    }
+                },
+            ],
+        });
+
+        editor.codemirror.addKeyMap({
+            'Esc': () => video.paused? video.play() : video.pause(),
+
+            'F1': () => video.currentTime -= 5,
+            'F2': () => video.currentTime += 5,
+
+            'F3': () => changePlaybackRate(video.playbackRate + 0.1),
+            'F4': () => changePlaybackRate(video.playbackRate - 0.1),
+            'F5': () => changePlaybackRate(1.0),
+
+            //'F6': () => changeLayout('dividido'),
+            //'F7': () => changeLayout('empilhado'),
+
+            'F8': () => insertText(`{${secToVideoTimestamp(video.currentTime, true)}}`),
+            'F9': screenshot,
+
+            'F12': () => alert(
+                `Atalhos:
+                Esc - Play/Pause
+                F1 - Volta 5s
+                F2 - Avança 5s
+                F3 - Aumenta velocidade
+                F4 - Diminui velocidade
+                F5 - Velocidade normal 1x
+                
+                F8 - Insere timestamp no editor
+                F9 - Screenshot
+
+                F12 - Ajuda
+
+                Ctrl+B - Negrito
+                Ctrl+I - Itálico
+                Ctrl+Alt+C - Insere código
+            `)
+        });
+
+        // append no editor
+        function insertText(text) {
+            editor.codemirror.replaceSelection(text);
+        }
+
+        function screenshot() {
+            var filename = `${CONFIG.course}-v${CONFIG.taskId}-t${video.currentTime}.jpg`;
+            var frame = captureVideoFrame(video, 'jpeg');
+            var a = document.createElement('a');
+            a.setAttribute('href', frame.dataUri);
+            a.setAttribute('download', filename);
+            a.click();
+            insertText(`\n![](${CONFIG.uploadURL}/${CONFIG.course}/${filename})\n`);
+        };
+
+        function changePlaybackRate(valor){
+            video.playbackRate = valor;
+            document.querySelector('.status-pbrate').textContent = `${parseInt(video.playbackRate * 10) / 10.0}x`;
+        }
+
+        function secToVideoTimestamp(time, showMilliseconds) {
+            var min = parseInt(parseInt(time) / 60);
+            var sec = parseInt(parseInt(time) % 60);
+            var mil = parseInt(time % 1 * 10);
+            return (`${min}:${sec < 10? '0'+sec: sec}`) + (showMilliseconds? `.${mil}` : '');
+        }
+
+        function changeLayout(name) {
+            document.body.style.display = 'none';
+            document.body.setAttribute('data-layout', name);
+            requestAnimationFrame(() => {
+                document.body.style.display = '';
+                editor.codemirror.refresh();
+            });
+        }
+
+        var statuscurtime = document.querySelector('.status-curtime');
+        video.ontimeupdate = () => statuscurtime.textContent = secToVideoTimestamp(video.currentTime, false);
+    })();
+    </script>
+
+</body>
+</html>

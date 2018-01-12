@@ -1,0 +1,11 @@
+{
+  "name": "alura-transcritor",
+  "version": "0.0.1",
+  "description": "Transcritor pra Alura",
+  "author": "Sérgio",
+  "license": "MIT",
+  "dependencies": {
+    "capture-video-frame": "*",
+    "simplemde": "*",
+  }
+}
