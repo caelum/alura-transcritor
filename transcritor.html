@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="lib/simplemde.min.css">
     <script src="lib/simplemde.min.js"></script>
+    <script src="lib/slug.js"></script>
     <script src="lib/capture-video-frame.js"></script>
 
     <style>
@@ -74,6 +75,7 @@
         CONFIG.aula = url.searchParams.get('aula');
         CONFIG.posicao = url.searchParams.get('posicao');
         CONFIG.course = CONFIG.task.match('/course\/([^\/]+)/')[1];
+        CONFIG.courseId = CONFIG.admin.match('/course\/([^\/]+)/')[1];
         CONFIG.taskId = CONFIG.task.substring(CONFIG.task.lastIndexOf('/')+1)
         CONFIG.uploadURL = 'https://s3.amazonaws.com/caelum-online-public';
     })();
@@ -164,6 +166,7 @@
                 Ctrl+B - Negrito
                 Ctrl+I - Itálico
                 Ctrl+Alt+C - Insere código
+                Ctrl+K - Insere link
             `)
         });
 
@@ -173,13 +176,29 @@
         }
 
         function screenshot() {
-            var filename = `${CONFIG.course}-v${CONFIG.taskId}-t${video.currentTime}.jpg`;
+            video.pause();
+            
+            var alt = prompt('Tirando screenshot. Qual o alt da imagem?');
+            var slug = window.slug(alt, {lower: true}).split('-').splice(0, 3).join('-'); // 3 palavras
+
+            // conta o numero de screenshots nessa task
+            var key = `screen_${CONFIG.taskId}`;
+            var contador = parseInt(localStorage.getItem(key) || 0) + 1;
+            localStorage.setItem(key, contador);
+
+            // padrao: 1.2_001_at.jpg
+            var filename = `${CONFIG.aula}.${CONFIG.posicao}_${("" + (contador + 1000)).substr(1)}_${slug}.jpg`;
+
+            // salva o screenshot
             var frame = captureVideoFrame(video, 'jpeg');
             var a = document.createElement('a');
             a.setAttribute('href', frame.dataUri);
             a.setAttribute('download', filename);
             a.click();
-            insertText(`\n![](${CONFIG.uploadURL}/${CONFIG.course}/${filename})\n`);
+
+            // insere no markdown
+            // padrao: https://s3.amazonaws.com/caelum-online-public/234-illustrator-finalizacao-e-apresentacao-de-personagem/1.2_01_movendo-o-elemento.png
+            insertText(`\n![${alt}](${CONFIG.uploadURL}/${CONFIG.courseId}-${CONFIG.course}/${filename})\n`);
         };
 
         function changePlaybackRate(valor){
