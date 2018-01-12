@@ -1,0 +1,71 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    font-family: Arial;
+    display: flex;
+}
+#video {
+    background: #222;
+}
+video {
+    width: 100%;
+}
+#editor {
+    display: flex;
+    flex-direction: column;
+}
+.editor-toolbar {
+    border: 0;
+    border-radius: 0;
+    background: #f0f0f0;
+}
+.CodeMirror {
+    height: 100%;
+    border-radius: 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+[data-layout="umatela"] {
+    flex-direction: row;
+}
+[data-layout="umatela"] > * {
+    width: 50%;
+}
+
+[data-layout="duastelas"] #video {
+    display: none;
+}
+
+/*
+[data-layout="empilhado"] {
+    flex-direction: column;
+}
+[data-layout="empilhado"] video {
+    max-height: 40vh;
+}
+*/
+
+#image-editor {
+    position: absolute;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 50px;
+    background:#f0f0f0;
+
+    display: none;
+}
+
+    #image-editor img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    #image-editor.show {
+        display: block;
+    }

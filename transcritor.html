@@ -8,82 +8,15 @@
 
     <link rel="stylesheet" href="lib/simplemde.min.css">
     <link rel="stylesheet" href="lib/darkroom.css">
+    <link rel="stylesheet" href="src/transcritor.css">
 
     <script src="lib/simplemde.min.js"></script>
     <script src="lib/slug.js"></script>
+    <script src="lib/base64img.js"></script>
     <script src="lib/capture-video-frame.js"></script>
 
-    <style>
-    html, body {
-        height: 100%;
-        width: 100%;
-        margin: 0;
-        font-family: Arial;
-        display: flex;
-    }
-    #video {
-        background: #222;
-    }
-    video {
-        width: 100%;
-    }
-    #editor {
-        display: flex;
-        flex-direction: column;
-    }
-    .editor-toolbar {
-        border: 0;
-        border-radius: 0;
-        background: #f0f0f0;
-    }
-    .CodeMirror {
-        height: 100%;
-        border-radius: 0;
-        border: 0;
-        border-top: 1px solid #ddd;
-        border-bottom: 1px solid #ddd;
-    }
-
-    [data-layout="dividido"] {
-        flex-direction: row;
-    }
-    [data-layout="dividido"] > * {
-        width: 50%;
-    }
-
-    [data-layout="empilhado"] {
-        flex-direction: column;
-    }
-    [data-layout="empilhado"] video {
-        max-height: 40vh;
-    }
-
-    #image-editor {
-        position: absolute;
-        z-index: 10000;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        padding: 50px;
-        background:#f0f0f0;
-
-        display: none;
-    }
-
-        #image-editor img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        #image-editor.show {
-            display: block;
-        }
-
-    </style>
-
 </head>
-<body data-layout="dividido">
+<body data-layout="umatela">
     
     <div id="video"></div>
     <div id="editor"><textarea></textarea></div>
@@ -111,7 +44,7 @@
 
     <script>
     (function(){
-        var video = document.querySelector('video');
+        video = document.querySelector('video');
 
         // editor
         editor = new SimpleMDE({
@@ -167,8 +100,8 @@
             'F4': () => changePlaybackRate(video.playbackRate - 0.1),
             'F5': () => changePlaybackRate(1.0),
 
-            //'F6': () => changeLayout('dividido'),
-            //'F7': () => changeLayout('empilhado'),
+            'F6': () => videoToSameWindow(),
+            'F7': () => videoToNewWindow(),
 
             'F8': () => insertText(`{${secToVideoTimestamp(video.currentTime, true)}}`),
             'F9': screenshot,
@@ -183,6 +116,9 @@
                 F4 - Diminui velocidade
                 F5 - Velocidade normal 1x
                 
+                F6 - Layout 1 tela
+                F7 - Layout 2 telas
+
                 F8 - Insere timestamp no editor
                 F9 - Screenshot
 
@@ -233,6 +169,34 @@
                 }
             });
         };
+
+        function videoToNewWindow() {
+            changeLayout('duastelas');
+            janelaAuxiliar = window.open("", "Vídeo", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1280,height=720,top=0,left=0");
+            janelaAuxiliar.document.body.innerHTML = `
+                <style>
+                html, body { margin: 0 }
+                video {width: 100%; height: 100%;}
+                </style>
+                ${document.getElementById('video').innerHTML}
+            `;
+
+            // sync
+            video = janelaAuxiliar.document.querySelector('video');
+            janelaAuxiliar.document.querySelector('video').currentTime = document.querySelector('video').currentTime;
+            janelaAuxiliar.document.querySelector('video').playbackRate = document.querySelector('video').playbackRate;
+        }
+
+        function videoToSameWindow() {
+            changeLayout('umatela');
+
+            //sync
+            video = document.querySelector('video');
+            document.querySelector('video').currentTime = janelaAuxiliar.document.querySelector('video').currentTime;
+            document.querySelector('video').playbackRate = janelaAuxiliar.document.querySelector('video').playbackRate;
+
+            janelaAuxiliar.close();
+        }
 
         function changePlaybackRate(valor){
             video.playbackRate = valor;
@@ -302,26 +266,6 @@
             this.destroyButton.addEventListener('click', this.options.callback.bind(this));
             },
         });
-
-
-        function getBase64Image(img) {
-            // Create an empty canvas element
-            var canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            // Copy the image contents to the canvas
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-
-            // Get the data-URL formatted image
-            // Firefox supports PNG and JPEG. You could check img.src to
-            // guess the original format, but be aware the using "image/jpg"
-            // will re-encode the image.
-            var dataURL = canvas.toDataURL("image/jpg");
-
-            return dataURL.replace(/^data:image\/jpg;base64,/, "");
-        }
     </script>
 
 </body>
