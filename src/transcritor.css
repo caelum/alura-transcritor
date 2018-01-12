@@ -38,6 +38,9 @@ video {
 [data-layout="duastelas"] #video {
     display: none;
 }
+[data-layout="duastelas"] #editor {
+    width: 100%;
+}
 
 /*
 [data-layout="empilhado"] {
