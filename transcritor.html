@@ -142,12 +142,12 @@
             var contador = parseInt(localStorage.getItem(key) || 0) + 1;
             localStorage.setItem(key, contador);
 
-            // padrao: 1.2_001_at.jpg
+            // padrao: 1.2_001_at.png
             // FEIO: global pra chamar no editor
-            filename = `${CONFIG.aula}.${CONFIG.posicao}_${("" + (contador + 1000)).substr(1)}_${slug}.jpg`;
+            filename = `${CONFIG.aula}.${CONFIG.posicao}_${("" + (contador + 1000)).substr(1)}_${slug}.png`;
 
             // salva o screenshot
-            var frame = captureVideoFrame(video, 'jpeg');
+            var frame = captureVideoFrame(video, 'png');
             
             // dispara editor de crop
             var imgeditor = document.querySelector('#image-editor');
@@ -238,7 +238,7 @@
         defaults: {
             callback: function() {
                 // pega data url
-                var data = document.querySelector('.lower-canvas').toDataURL('jpeg');
+                var data = document.querySelector('.lower-canvas').toDataURL('png');
 
                 // limpa editor
                 this.darkroom.selfDestroy();
