@@ -133,8 +133,8 @@
         editor.codemirror.addKeyMap({
             'Esc': () => video.paused? video.play() : video.pause(),
 
-            'F1': () => video.currentTime -= 5,
-            'F2': () => video.currentTime += 5,
+            'F1': () => video.currentTime -= 1,
+            'F2': () => video.currentTime += 1,
 
             'F3': () => changePlaybackRate(video.playbackRate + 0.1),
             'F4': () => changePlaybackRate(video.playbackRate - 0.1),
@@ -149,8 +149,9 @@
             'F12': () => alert(
                 `Atalhos:
                 Esc - Play/Pause
-                F1 - Volta 5s
-                F2 - Avança 5s
+                F1 - Volta 1s
+                F2 - Avança 1s
+
                 F3 - Aumenta velocidade
                 F4 - Diminui velocidade
                 F5 - Velocidade normal 1x
