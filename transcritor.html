@@ -71,6 +71,8 @@
         CONFIG.videoUrl = url.searchParams.get('video');
         CONFIG.admin = url.searchParams.get('admin');
         CONFIG.task = url.searchParams.get('task');
+        CONFIG.aula = url.searchParams.get('aula');
+        CONFIG.posicao = url.searchParams.get('posicao');
         CONFIG.course = CONFIG.task.match('/course\/([^\/]+)/')[1];
         CONFIG.taskId = CONFIG.task.substring(CONFIG.task.lastIndexOf('/')+1)
         CONFIG.uploadURL = 'https://s3.amazonaws.com/caelum-online-public';
