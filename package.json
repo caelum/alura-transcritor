@@ -6,6 +6,6 @@
   "license": "MIT",
   "dependencies": {
     "capture-video-frame": "*",
-    "simplemde": "*",
+    "simplemde": "*"
   }
 }
