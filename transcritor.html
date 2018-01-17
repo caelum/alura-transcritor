@@ -7,6 +7,7 @@
     <title>Transcritor Alura</title>
 
     <link rel="stylesheet" href="lib/simplemde.min.css">
+    <link rel="stylesheet" href="lib/show-hint.css">
     <link rel="stylesheet" href="lib/darkroom.css">
     <link rel="stylesheet" href="src/transcritor.css">
 
@@ -15,7 +16,14 @@
     <script src="lib/base64img.js"></script>
     <script src="lib/capture-video-frame.js"></script>
     <script src="lib/show-invisibles.js"></script>
+    <script src="lib/show-hint.js"></script>
+    <script src="lib/anyword-hint.js"></script>
 
+    <script>
+      CodeMirror.commands.autocomplete = function(cm) {
+        cm.showHint({hint: CodeMirror.hint.anyword});
+      }
+    </script>
 </head>
 <body data-layout="umatela">
     
@@ -134,6 +142,8 @@
                 Ctrl+I - Itálico
                 Ctrl+Alt+C - Insere código
                 Ctrl+K - Insere link
+
+                Ctrl+Espaço - Autocompletar
             `)
         });
 
