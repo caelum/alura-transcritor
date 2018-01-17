@@ -66,6 +66,11 @@
             status: [
                 {
                     defaultValue: function(el) {
+                        el.innerHTML = `<button id="export" onclick="exportMd()">Exportar .md</button>`;
+                    }
+                },
+                {
+                    defaultValue: function(el) {
                         el.innerHTML = `<a href="${CONFIG.admin}" target="_blank">Admin</a>`;
                     }
                 },
@@ -226,6 +231,16 @@
     // append no editor
     function insertText(text) {
         editor.codemirror.replaceSelection(text);
+    }
+
+    function exportMd() {
+        var text = editor.value();
+        var filename = filename = `${CONFIG.course}-${CONFIG.aula}.${CONFIG.posicao}.md`;
+
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.click();
     }
     </script>
 
