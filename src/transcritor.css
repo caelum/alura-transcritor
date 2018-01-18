@@ -94,6 +94,42 @@ video {
  }
 
 /* spell checker */
-.CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word):not(.cm-attribute):not(.cm-string):not(.cm-keyword):not(.cm-number):not(.cm-def){ 
+.CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word):not(.cm-attribute):not(.cm-string):not(.cm-keyword):not(.cm-number):not(.cm-def):not(.cm-property):not(.cm-variable-2):not(.cm-meta){ 
     background:rgba(255,0,0,.15)
+}
+
+/* tema */
+.CodeMirror .CodeMirror-code .cm-comment {
+    background: none;
+}
+
+.cm-string {
+	color: #C41A16;
+}
+.cm-number {
+	color: null;
+}
+.cm-keyword {
+	color: #AA0D91;
+}
+.cm-atom {
+	color: null;
+}
+.cm-variable {
+	color: #000000;
+}
+.cm-def {
+	font-style: italic;
+}
+.cm-comment {
+	color: #007400;
+}
+.cm-variable-2 {
+	color: #881280;
+}
+.cm-property {
+	color: null;
+}
+.cm-operator {
+	color: #AA0D91;
 }
