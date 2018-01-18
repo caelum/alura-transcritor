@@ -181,6 +181,10 @@
             a.setAttribute('href', frame.dataUri);
             a.setAttribute('download', filename);
             a.click();
+
+            // insere no markdown
+            // padrao: https://s3.amazonaws.com/caelum-online-public/234-illustrator-finalizacao-e-apresentacao-de-personagem/1.2_01_movendo-o-elemento.png
+            insertText(`\n![${alt}](${CONFIG.uploadURL}/${CONFIG.courseId}-${CONFIG.course}/${filename})\n`);
             
             // dispara editor de crop
             // var imgeditor = document.querySelector('#image-editor');
