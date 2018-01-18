@@ -33,7 +33,7 @@
       }
     </script>
 </head>
-<body data-layout="umatela">
+<body data-layout="umatela" data-divisao="50_50">
     
     <div id="video"></div>
     <div id="editor"><textarea></textarea></div>
@@ -128,6 +128,8 @@
             'F8': () => insertText(`{${secToVideoTimestamp(video.currentTime, true)}}`),
             'F9': screenshot,
 
+            'F10': () => cycleLayout(),
+
             'F12': () => alert(
                 `Atalhos:
                 Esc - Play/Pause
@@ -144,6 +146,7 @@
                 F8 - Insere timestamp no editor
                 F9 - Screenshot
 
+                F10 - Alterna largura do editor
                 F12 - Ajuda
 
                 Ctrl+B - Negrito
@@ -234,13 +237,21 @@
             return (`${min}:${sec < 10? '0'+sec: sec}`) + (showMilliseconds? `.${mil}` : '');
         }
 
-        function changeLayout(name) {
+        function changeLayout(name, divisao) {
             document.body.style.display = 'none';
             document.body.setAttribute('data-layout', name);
+            if (divisao) document.body.setAttribute('data-divisao', divisao);
             requestAnimationFrame(() => {
                 document.body.style.display = '';
                 editor.codemirror.refresh();
             });
+        }
+
+        function cycleLayout() {
+            var divisoes = ['50_50', '60_40', '70_30'];
+            var atual = document.body.getAttribute('data-divisao');
+            var idx = (divisoes.indexOf(atual) + 1) % divisoes.length;
+            changeLayout('umatela', divisoes[idx]);
         }
 
         var statuscurtime = document.querySelector('.status-curtime');
