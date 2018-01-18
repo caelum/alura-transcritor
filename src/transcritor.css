@@ -92,3 +92,8 @@ video {
     background-position: right;
     background-repeat: no-repeat;
  }
+
+/* spell checker */
+.CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word):not(.cm-attribute):not(.cm-string):not(.cm-keyword):not(.cm-number):not(.cm-def){ 
+    background:rgba(255,0,0,.15)
+}
