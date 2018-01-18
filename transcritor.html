@@ -175,26 +175,32 @@
 
             // salva o screenshot
             var frame = captureVideoFrame(video, 'png');
+
+            // download
+            var a = document.createElement('a');
+            a.setAttribute('href', frame.dataUri);
+            a.setAttribute('download', filename);
+            a.click();
             
             // dispara editor de crop
-            var imgeditor = document.querySelector('#image-editor');
-            imgeditor.innerHTML = '';
-            var img = new Image();
-            img.src = frame.dataUri;
-            img.id = 'darkroom';
-            imgeditor.appendChild(img);
-            imgeditor.classList.add('show');
+            // var imgeditor = document.querySelector('#image-editor');
+            // imgeditor.innerHTML = '';
+            // var img = new Image();
+            // img.src = frame.dataUri;
+            // img.id = 'darkroom';
+            // imgeditor.appendChild(img);
+            // imgeditor.classList.add('show');
 
-            new Darkroom('#darkroom', {
-                plugins: {
-                    save: false,
-                    rotate: false
-                  },
-                  initialize: function() {
-                    var cropPlugin = this.plugins['crop'];
-                    cropPlugin.requireFocus();
-                }
-            });
+            // new Darkroom('#darkroom', {
+            //     plugins: {
+            //         save: false,
+            //         rotate: false
+            //       },
+            //       initialize: function() {
+            //         var cropPlugin = this.plugins['crop'];
+            //         cropPlugin.requireFocus();
+            //     }
+            // });
         };
 
         function videoToNewWindow() {
