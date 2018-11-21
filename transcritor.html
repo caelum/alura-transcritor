@@ -23,6 +23,7 @@
 
     <script src="lib/slug.js"></script>
     <script src="lib/base64img.js"></script>
+    <script src="lib/download.js"></script>
     <script src="lib/capture-video-frame.js"></script>
     <script src="lib/show-invisibles.js"></script>
     <script src="lib/show-hint.js"></script>
@@ -178,10 +179,12 @@
             var frame = captureVideoFrame(video, 'png');
 
             // download
-            var a = document.createElement('a');
-            a.setAttribute('href', frame.dataUri);
-            a.setAttribute('download', filename);
-            a.click();
+            // var a = document.createElement('a');
+            // a.setAttribute('href', frame.dataUri);
+            // a.setAttribute('download', filename);
+            // a.click();
+
+            download(frame.dataUri, filename, 'image/png');
 
             // insere no markdown
             // padrao: https://s3.amazonaws.com/caelum-online-public/234-illustrator-finalizacao-e-apresentacao-de-personagem/1.2_01_movendo-o-elemento.png
