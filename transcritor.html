@@ -59,6 +59,12 @@
 
     // constroi o video player
     document.querySelector('#video').innerHTML = `<video src="${CONFIG.videoUrl}" controls crossorigin="anonymous"></video>`;
+
+    // bug fix chrome 70+ sem cors no redirect:
+    fetch(CONFIG.videoUrl).then(response => {
+        if (response.redirected)
+            document.querySelector('video').src = response.url;
+    });
     </script>
 
     <script>
