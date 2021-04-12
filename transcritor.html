@@ -133,7 +133,7 @@
             'F6': () => videoToSameWindow(),
             'F7': () => videoToNewWindow(),
 
-            'F8': () => insertText(`{${secToVideoTimestamp(video.currentTime, true)}}`),
+            'F8': () => insertText(`{${secToVideoTimestamp(video.currentTime, false)}}`),
             'F9': screenshot,
 
             'F10': () => cycleLayout(),
