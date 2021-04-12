@@ -247,7 +247,7 @@
             var min = parseInt(parseInt(time) / 60);
             var sec = parseInt(parseInt(time) % 60);
             var mil = parseInt(time % 1 * 10);
-            return (`${min}:${sec < 10? '0'+sec: sec}`) + (showMilliseconds? `.${mil}` : '');
+            return (`${min < 10? '0'+min :min}:${sec < 10? '0'+sec: sec}`) + (showMilliseconds? `.${mil}` : '');
         }
 
         function changeLayout(name, divisao) {
