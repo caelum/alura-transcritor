@@ -9,15 +9,20 @@
 <body>
    <h1>Instalação do Transcritor</h1> 
 
-   <p>Arraste o link para sua barra de favoritos: (versão nov/2019)<br><br>
+   <p>Arraste o link para sua barra de favoritos: (versão Set/2021)<br><br>
     <a href="javascript:(function(){
-        fetch(location.href + '/video', {useCredentials: true}).then(res => res.json())
-        .then(data => {
-            var video = data[0].link.replace(/\/hls/, '').replace(/\/index.m3u8/,'');
-            window.open('https://caelum.github.io/alura-transcritor/transcritor.html?video=' + encodeURIComponent(video) + '&admin=' + encodeURIComponent(document.querySelector('.settings-box-item-edit a').href) + '&task=' + encodeURIComponent(location.href) + '&posicao=' + document.querySelector('.task-body-header-title small').innerText + '&aula=' + document.querySelector('.task-menu-section-title-number strong').innerText, 'transcritor');
-        });
-    })();">Transcrever</a></p>
+        if (location.host == 'www.youtube.com') {
+            window.open('https://caelum.github.io/alura-transcritor/transcritor.html?youtube=' + new URLSearchParams(location.search).get('v'), 'transcritor');
+        } else {
+            fetch(location.href + '/video', {useCredentials: true}).then(res => res.json())
+            .then(data => {
+                var video = data[0].link.replace(/\/hls/, '').replace(/\/index.m3u8/,'');
+                window.open('https://caelum.github.io/alura-transcritor/transcritor.html?video=' + encodeURIComponent(video) + '&admin=' + encodeURIComponent(document.querySelector('.settings-box-item-edit a').href) + '&task=' + encodeURIComponent(location.href) + '&posicao=' + document.querySelector('.task-body-header-title small').innerText + '&aula=' + document.querySelector('.task-menu-section-title-number strong').innerText, 'transcritor');
+            });    
+        }
+    })()">Transcrever</a></p>
 
    <p>Vá em algum vídeo na Plataforma e aperte <B>Transcrever</B>. O Transcritor abre em outra aba. Aperte F12 para ver os atalhos</p>
+   <p>Set/21: Funciona também para vídeos do YouTube.</p>
 </body>
 </html>

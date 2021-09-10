@@ -50,21 +50,50 @@
         CONFIG.admin = url.searchParams.get('admin');
         CONFIG.task = url.searchParams.get('task');
         CONFIG.aula = url.searchParams.get('aula');
+        CONFIG.youtube_id = url.searchParams.get('youtube');
         CONFIG.posicao = url.searchParams.get('posicao');
-        CONFIG.course = CONFIG.task.match('/course\/([^\/]+)/')[1];
-        CONFIG.courseId = CONFIG.admin.match('/course\/([^\/]+)/')[1];
-        CONFIG.taskId = CONFIG.task.substring(CONFIG.task.lastIndexOf('/')+1)
+        CONFIG.course = CONFIG.task?CONFIG.task.match('/course\/([^\/]+)/')[1]:null;
+        CONFIG.courseId = CONFIG.admin?CONFIG.admin.match('/course\/([^\/]+)/')[1]:null;
+        CONFIG.taskId = CONFIG.task?CONFIG.task.substring(CONFIG.task.lastIndexOf('/')+1):null;
         CONFIG.uploadURL = 'https://s3.amazonaws.com/caelum-online-public';
     })();
 
-    // constroi o video player
-    document.querySelector('#video').innerHTML = `<video src="${CONFIG.videoUrl}" controls crossorigin="anonymous"></video>`;
+    var isYoutube = CONFIG.youtube_id != null;
 
-    // bug fix chrome 70+ sem cors no redirect:
-    fetch(CONFIG.videoUrl).then(response => {
-        if (response.redirected)
-            document.querySelector('video').src = response.url;
-    });
+
+    if (isYoutube) {
+
+        // load yt api
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // cria player
+        var ytPlayer;
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('video', {
+                height: '600',
+                width: '1280',
+                videoId: CONFIG.youtube_id,
+                events: {
+                }
+            });
+        }
+
+    }
+
+    if (!isYoutube) {
+        // constroi o video player
+        document.querySelector('#video').innerHTML = `<video src="${CONFIG.videoUrl}" controls crossorigin="anonymous"></video>`;
+    
+        // bug fix chrome 70+ sem cors no redirect:
+        fetch(CONFIG.videoUrl).then(response => {
+            if (response.redirected)
+                document.querySelector('video').src = response.url;
+        });
+    }
+
     </script>
 
     <script>
@@ -121,19 +150,19 @@
         });
 
         editor.codemirror.addKeyMap({
-            'Esc': () => video.paused? video.play() : video.pause(),
+            'Esc': () => changeState(),
 
-            'F1': () => video.currentTime -= 1,
-            'F2': () => video.currentTime += 1,
+            'F1': () => changeCurrentTime(-1),
+            'F2': () => changeCurrentTime(1),
 
-            'F3': () => changePlaybackRate(video.playbackRate + 0.1),
-            'F4': () => changePlaybackRate(video.playbackRate - 0.1),
-            'F5': () => changePlaybackRate(1.0),
+            'F3': () => changePlaybackRate(0.1),
+            'F4': () => changePlaybackRate(-0.1),
+            'F5': () => changePlaybackRate(),
 
             'F6': () => videoToSameWindow(),
             'F7': () => videoToNewWindow(),
 
-            'F8': () => insertText(`{${secToVideoTimestamp(video.currentTime, false)}}`),
+            'F8': () => insertText(`{${secToVideoTimestamp(isYoutube? ytPlayer.getCurrentTime() : video.currentTime, false)}}`),
             'F9': screenshot,
 
             'F10': () => cycleLayout(),
@@ -167,7 +196,7 @@
         });
 
         function screenshot() {
-            video.pause();
+            isYoutube? ytPlayer.pauseVideo() : video.pause();
             
             alt = prompt('Tirando screenshot. Qual o alt da imagem?');
             var slug = window.slug(alt, {lower: true}).split('-').splice(0, 3).join('-'); // 3 palavras
@@ -238,9 +267,27 @@
             janelaAuxiliar.close();
         }
 
-        function changePlaybackRate(valor){
-            video.playbackRate = valor;
-            document.querySelector('.status-pbrate').textContent = `${parseInt(video.playbackRate * 10) / 10.0}x`;
+        function changeState() {
+            isYoutube?
+                  ytPlayer.getPlayerState() == 2? ytPlayer.playVideo() : ytPlayer.pauseVideo()
+                : video.paused? video.play() : video.pause()
+        }
+
+        function changeCurrentTime(delta) {
+            isYoutube?
+                ytPlayer.seekTo(ytPlayer.getCurrentTime() + delta)
+                : video.currentTime += delta;
+        }
+
+        function changePlaybackRate(delta){
+            if (delta == undefined) var valor = 1.0;
+            else var valor = (isYoutube? ytPlayer.getPlaybackRate() : video.playbackRate) + delta;
+
+            isYoutube?
+                ytPlayer.setPlaybackRate(valor)
+                : video.playbackRate = valor;
+
+            document.querySelector('.status-pbrate').textContent = `${parseInt(valor * 10) / 10.0}x`;
         }
 
         function secToVideoTimestamp(time, showMilliseconds) {
@@ -268,7 +315,14 @@
         }
 
         var statuscurtime = document.querySelector('.status-curtime');
-        video.ontimeupdate = () => statuscurtime.textContent = secToVideoTimestamp(video.currentTime, false);
+        
+        if (isYoutube) {
+            setInterval(() => 
+                statuscurtime.textContent = secToVideoTimestamp(ytPlayer?ytPlayer.getCurrentTime():0, false)
+            , 500);
+        } else {
+            video.ontimeupdate = () => statuscurtime.textContent = secToVideoTimestamp(video.currentTime, false);
+        }
     })();
 
     // append no editor

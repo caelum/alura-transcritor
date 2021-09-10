@@ -8,7 +8,8 @@ html, body {
 #video {
     background: #222;
 }
-video {
+video, iframe {
+    aspect-ratio: 16/9;
     width: 100%;
 }
 #editor {
