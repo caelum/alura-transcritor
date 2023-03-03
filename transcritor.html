@@ -332,7 +332,9 @@
 
     function exportMd() {
         var text = editor.value();
-        var filename = filename = `${CONFIG.course}-${CONFIG.aula}.${CONFIG.posicao}.md`;
+        var filename = isYoutube?
+            `${ytPlayer.getVideoData().title}.md`
+            : `${CONFIG.course}-${CONFIG.aula}.${CONFIG.posicao}.md`;
         download('data:text/plain;charset=utf-8,' + encodeURIComponent(text), filename, 'text/plain');
     }
     </script>
