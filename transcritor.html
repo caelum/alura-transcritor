@@ -378,5 +378,15 @@
         });
     </script>
 
+    <script>
+        window.onbeforeunload = function(e) {
+            var text = editor.value();
+            if (text) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+    </script>
+
 </body>
 </html>
