@@ -125,7 +125,7 @@
                 },
                 {
                     defaultValue: function(el) {
-                        el.innerHTML = `<a href="${CONFIG.admin}" target="_blank">Admin</a>`;
+                        el.innerHTML = CONFIG.admin && `<a href="${CONFIG.admin}" target="_blank">Admin</a>`;
                     }
                 },
                 {
