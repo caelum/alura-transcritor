@@ -162,7 +162,7 @@
             'F6': () => videoToSameWindow(),
             'F7': () => videoToNewWindow(),
 
-            'F8': () => insertText(`{${secToVideoTimestamp(isYoutube? ytPlayer.getCurrentTime() : video.currentTime, false)}}`),
+            'F8': () => insertText(`[${secToVideoTimestamp(isYoutube? ytPlayer.getCurrentTime() : video.currentTime, false)}]`),
             'F9': screenshot,
 
             'F10': () => cycleLayout(),
