@@ -125,7 +125,7 @@
                 },
                 {
                     defaultValue: function(el) {
-                        el.innerHTML = `<a href="${CONFIG.admin}" target="_blank">Admin</a>`;
+                        el.innerHTML = CONFIG.admin && `<a href="${CONFIG.admin}" target="_blank">Admin</a>`;
                     }
                 },
                 {
@@ -162,7 +162,7 @@
             'F6': () => videoToSameWindow(),
             'F7': () => videoToNewWindow(),
 
-            'F8': () => insertText(`{${secToVideoTimestamp(isYoutube? ytPlayer.getCurrentTime() : video.currentTime, false)}}`),
+            'F8': () => insertText(`[${secToVideoTimestamp(isYoutube? ytPlayer.getCurrentTime() : video.currentTime, false)}]`),
             'F9': screenshot,
 
             'F10': () => cycleLayout(),
@@ -332,7 +332,9 @@
 
     function exportMd() {
         var text = editor.value();
-        var filename = filename = `${CONFIG.course}-${CONFIG.aula}.${CONFIG.posicao}.md`;
+        var filename = isYoutube?
+            `${ytPlayer.getVideoData().title}.md`
+            : `${CONFIG.course}-${CONFIG.aula}.${CONFIG.posicao}.md`;
         download('data:text/plain;charset=utf-8,' + encodeURIComponent(text), filename, 'text/plain');
     }
     </script>
@@ -374,6 +376,16 @@
             this.destroyButton.addEventListener('click', this.options.callback.bind(this));
             },
         });
+    </script>
+
+    <script>
+        window.onbeforeunload = function(e) {
+            var text = editor.value();
+            if (text) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
     </script>
 
 </body>
